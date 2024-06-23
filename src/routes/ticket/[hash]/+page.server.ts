@@ -6,7 +6,7 @@ export const load = (async (event) => {
 	const uuid = event.url.searchParams.get('uuid') ?? '';
 	const ticketHashes = await checkTickets(uuid, event.params.hash.split(','));
 
-	const tickets = Promise.all(
+	const tickets = await Promise.all(
 		ticketHashes.map(async ([hash, validity]) => ({
 			qr: await generateTicketQR(hash),
 			validity,
