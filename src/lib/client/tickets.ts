@@ -1,5 +1,4 @@
 import type { Readable, Subscriber } from 'svelte/store';
-import { v4 as uuidv4 } from 'uuid';
 import * as z from 'zod';
 
 const ticketSchema = z.object({

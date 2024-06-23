@@ -1,39 +1,35 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms/client';
+	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types.js';
 	import { updateTicket } from '$lib/client/tickets.ts';
-	import { getBackContext } from '$lib/BackContext.svelte';
-	import { onDestroy } from 'svelte';
+	// import { getBackContext } from '$lib/BackContext.svelte';
+	// import { onDestroy } from 'svelte';
 
 	export let data: PageData;
 
-	const onNextPage = (e: Event) => {
-		page = 'hotel';
-		e.preventDefault();
-	};
-	const onBack = () => {
-		if (page === 'hotel') {
-			page = 'ticket';
-		} else {
-			location.href = '/';
-		}
-	};
+	// const onNextPage = (e: Event) => {
+	// 	page = 'hotel';
+	// 	e.preventDefault();
+	// };
+	// const onBack = () => {
+	// 	if (page === 'hotel') {
+	// 		page = 'ticket';
+	// 	} else {
+	// 		location.href = '/';
+	// 	}
+	// };
 
-	const { listen } = getBackContext();
-	onDestroy(listen(onBack));
+	// const { listen } = getBackContext();
+	// onDestroy(listen(onBack));
 
-	let page: 'ticket' | 'hotel' = 'ticket';
+	// let page: 'ticket' | 'hotel' = 'ticket';
 
-	const { form, constraints, errors, enhance } = superForm(data.form, {
-		validators: {
-			zip: (s: string) =>
-				s.replaceAll(/\s/g, '').match(/^\d{5}$/) ? null : 'PSČ musí být pět číslic'
-		}
-	});
+	const { form, constraints, errors, enhance } = superForm(data.form);
 
 	$: $form.uuid = data.uuid;
 
 	const onSubmit = () => {
+		console.log('hey');
 		updateTicket({
 			uuid: $form.uuid,
 			name: $form.name,
@@ -44,7 +40,7 @@
 
 <h1>Arty Party no. IV 2023 - předprodej vstupenek</h1>
 <form method="post" use:enhance on:submit={onSubmit}>
-	<div style:display={page === 'ticket' ? 'block' : 'none'}>
+	<div>
 		<input type="hidden" name="uuid" value={data.uuid} />
 		<label>
 			Jméno a příjmení
@@ -68,7 +64,7 @@
 		</label>
 		<label>
 			PSČ
-			<input name="zip" bind:value={$form.zip} />
+			<input name="zip" bind:value={$form.zip} {...$constraints.zip} />
 			<small>{$errors.zip ?? ''}</small>
 		</label>
 		<label>
@@ -81,18 +77,19 @@
 			/>
 			<small>{$errors.ticketCount ?? ''}</small>
 		</label>
-		<span>
+		<hr />
+		<!-- <span>
 			{$form.ticketCount * data.ticketPrice},– Kč
 			<button on:click={onNextPage}>Dále!</button>
-		</span>
+		</span> -->
 	</div>
-	<div style:display={page === 'hotel' ? 'block' : 'none'}>
+	<div>
 		<span>
 			<strong>Budete si přát místo pro stan?</strong>
 		</span>
 		<label>
 			Místo pro stan
-			<select name="hotelRoom" bind:value={$form.hotelRoom}>
+			<select name="hotelRoom" bind:value={$form.hotelRoom} {...$constraints.hotelRoom}>
 				<option value="">Žádné</option>
 				{#each Object.entries(data.freeRooms) as [room, { price, description }]}
 					<option value={room}>{room} ({price} Kč) – {description}</option>
@@ -105,6 +102,7 @@
 				{data.freeRooms[$form.hotelRoom]?.description}
 			</span>
 		{/if}
+		<hr />
 		<span>
 			{$form.ticketCount * data.ticketPrice + (data.freeRooms[$form.hotelRoom]?.price ?? 0)},– Kč
 			<button>Koupit!</button>

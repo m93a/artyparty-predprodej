@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { superValidate } from 'sveltekit-superforms/server';
+import { zod } from 'sveltekit-superforms/adapters';
 import type { PageServerLoad, Actions } from './$types.d.ts';
 import { fail, redirect } from '@sveltejs/kit';
 import { generateUuid, getFreeHotelRooms, newPurchase } from '$lib/server/spreadsheet.ts';
@@ -18,8 +19,8 @@ const formSchema = z
 		email: z.string().email('Neplatná e-mailová adresa').min(1),
 		ticketCount: z
 			.number()
-			.min(0, 'Počet lístků musí být nezáporný!')
 			.int('Musíte koupit celočíselný počet lístků!')
+			.min(0, 'Počet lístků musí být nezáporný!')
 			.default(1),
 		hotelRoom: z
 			.enum<string, any>(Object.keys(secrets.hotelRooms), {
@@ -33,7 +34,7 @@ const formSchema = z
 	);
 
 export const load = (async (event) => {
-	const form = await superValidate(event, formSchema);
+	const form = await superValidate(zod(formSchema));
 	const uuid = await generateUuid();
 	const ticketPrice = secrets.ticketPrice;
 	const freeRooms = Object.fromEntries(
@@ -49,8 +50,8 @@ export const load = (async (event) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	default: async (event) => {
-		const form = await superValidate(event, formSchema);
+	default: async ({ request }) => {
+		const form = await superValidate(request, zod(formSchema));
 
 		if (!form.valid) {
 			return fail(400, {

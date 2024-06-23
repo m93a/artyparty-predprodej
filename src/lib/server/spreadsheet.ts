@@ -9,10 +9,15 @@ import secrets from '$lib/server/secrets.ts';
 import { z } from 'zod';
 import { generujNJmen } from '$lib/jmena.ts';
 import { sendTicket } from './mail.ts';
+import { JWT } from 'google-auth-library';
 
 const getSheets = async () => {
-	const doc = new GoogleSpreadsheet(secrets.spreadsheetId);
-	await doc.useServiceAccountAuth(secrets.serviceAccountKey);
+	const serviceAccountAuth = new JWT({
+		email: secrets.serviceAccountKey.client_email,
+		key: secrets.serviceAccountKey.private_key,
+		scopes: ['https://www.googleapis.com/auth/spreadsheets']
+	});
+	const doc = new GoogleSpreadsheet(secrets.spreadsheetId, serviceAccountAuth);
 	await doc.loadInfo();
 	const purchaseSheet = doc.sheetsByTitle['listky'];
 	const usedTicketSheet = doc.sheetsByTitle['pouzite_listky'];
@@ -59,21 +64,21 @@ const getPurchaseRows = async (): Promise<PurchaseEntry[]> => {
 	const { purchaseSheet } = await getSheets();
 	const rows = await purchaseSheet.getRows();
 	return rows.map((r) => ({
-		uuid: r['uuid'],
+		uuid: r.get('uuid'),
 
-		jmeno: r['jmeno'],
-		email: r['email'],
-		adresa: r['adresa'],
+		jmeno: r.get('jmeno'),
+		email: r.get('email'),
+		adresa: r.get('adresa'),
 
-		vytvoreno: +r['vytvoreno'],
-		zaplaceno: toOptNum(r['zaplaceno']),
+		vytvoreno: +r.get('vytvoreno'),
+		zaplaceno: toOptNum(r.get('zaplaceno')),
 
-		cena: +r['cena'],
-		pocet_vstupenek: +r['pocet_vstupenek'],
-		hotel_room: emptyToUndefined(r['hotel_room']),
-		variabilni_symbol: +r['variabilni_symbol'],
-		id_transakce: toOptNum(r['id_transakce']),
-		vstupenky_hash: toStrArr(r['vstupenky_hash'])
+		cena: +r.get('cena'),
+		pocet_vstupenek: +r.get('pocet_vstupenek'),
+		hotel_room: emptyToUndefined(r.get('hotel_room')),
+		variabilni_symbol: +r.get('variabilni_symbol'),
+		id_transakce: toOptNum(r.get('id_transakce')),
+		vstupenky_hash: toStrArr(r.get('vstupenky_hash'))
 	}));
 };
 
@@ -86,7 +91,7 @@ export const getPurchaseByUuid = async (uuid: string): Promise<PurchaseEntry | u
 export const generateUuid = async () => {
 	const { purchaseSheet } = await getSheets();
 	const rows = await purchaseSheet.getRows();
-	const used = new Set(rows.map((r) => r['uuid']));
+	const used = new Set(rows.map((r) => r.get('uuid')));
 
 	let uuid: string;
 	do {
@@ -100,7 +105,9 @@ export const getFreeHotelRooms = async () => {
 	const { purchaseSheet } = await getSheets();
 	const rows = await purchaseSheet.getRows();
 	const used = new Set(
-		rows.map((r) => emptyToUndefined(r['hotel_room'])).filter((r): r is string => r !== undefined)
+		rows
+			.map((r) => emptyToUndefined(r.get('hotel_room')))
+			.filter((r): r is string => r !== undefined)
 	);
 	const free = Object.keys(secrets.hotelRooms).filter((r) => !used.has(r));
 	return free;
@@ -109,7 +116,7 @@ export const getFreeHotelRooms = async () => {
 const getUsedTickets = async (): Promise<Set<string>> => {
 	const { usedTicketSheet } = await getSheets();
 	const rows = await usedTicketSheet.getRows();
-	return new Set(rows.map((r) => r['hash']));
+	return new Set(rows.map((r) => r.get('hash')));
 };
 
 interface UseTicketResult {
@@ -135,8 +142,8 @@ export const useTicket = async (hash: string): Promise<UseTicketResult> => {
 	const { usedTicketSheet } = await getSheets();
 	const usedRow = (await usedTicketSheet.getRows())
 		.map((r) => ({
-			hash: r['hash'],
-			used: +r['pouzito']
+			hash: r.get('hash'),
+			used: +r.get('pouzito')
 		}))
 		.find((r) => r.hash === hash);
 
@@ -154,7 +161,7 @@ export const useTicket = async (hash: string): Promise<UseTicketResult> => {
 export const undoUseTicket = async (hash: string) => {
 	const { usedTicketSheet } = await getSheets();
 	const rows = await usedTicketSheet.getRows();
-	const row = rows.find((r) => r['hash'] === hash);
+	const row = rows.find((r) => r.get('hash') === hash);
 	row?.delete();
 };
 
@@ -193,12 +200,12 @@ const updatePurchaseRow = async (
 	const { purchaseSheet } = await getSheets();
 	const rows = await purchaseSheet.getRows();
 	const row = rows.find((r) =>
-		Object.entries(which).every(([key, value]) => r[key] === String(value))
+		Object.entries(which).every(([key, value]) => r.get(key) === String(value))
 	);
 	if (row === undefined) throw new Error('Could not find the row');
 
 	for (const [key, value] of Object.entries(edit)) {
-		row[key] = Array.isArray(value) ? value.join(', ') : value;
+		row.set(key, Array.isArray(value) ? value.join(', ') : value);
 	}
 
 	await row.save();
@@ -208,12 +215,12 @@ const getTransactionRows = async (): Promise<TransactionEntry[]> => {
 	const { transactionSheet } = await getSheets();
 	const rows = await transactionSheet.getRows();
 	return rows.map((r) => ({
-		id_transakce: +r['id_transakce'],
-		timestamp: +r['timestamp'],
-		castka: r['castka'],
-		variabilni_symbol: +r['variabilni_symbol'],
-		ucet: r['ucet'],
-		jmeno: r['jmeno']
+		id_transakce: +r.get('id_transakce'),
+		timestamp: +r.get('timestamp'),
+		castka: r.get('castka'),
+		variabilni_symbol: +r.get('variabilni_symbol'),
+		ucet: r.get('ucet'),
+		jmeno: r.get('jmeno')
 	}));
 };
 
@@ -221,13 +228,13 @@ const updateTransactionRows = async (transactions: Readonly<TransactionEntry>[])
 	const { transactionSheet } = await getSheets();
 	const rows = await transactionSheet.getRows();
 
-	const oldIds = new Set(rows.map((r) => +r['id_transakce']));
+	const oldIds = new Set(rows.map((r) => +r.get('id_transakce')));
 	const newIds = new Set(transactions.map((t) => t.id_transakce));
 
 	const deleteIds = setMinus(oldIds, newIds);
 	const addIds = setMinus(newIds, oldIds);
 
-	for (const id of deleteIds) await rows.find((r) => +r['id_transakce'] === id)?.delete();
+	for (const id of deleteIds) await rows.find((r) => +r.get('id_transakce') === id)?.delete();
 	await transactionSheet.addRows(transactions.filter((t) => addIds.has(t.id_transakce)));
 };
 
