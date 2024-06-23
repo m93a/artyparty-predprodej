@@ -28,6 +28,7 @@ module.exports = {
 		}
 	],
 	rules: {
-		"no-empty": "off"
+		'no-empty': 'off',
+		'@typescript-eslint/no-explicit-any': 'off'
 	}
 };

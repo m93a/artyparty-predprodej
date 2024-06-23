@@ -3,12 +3,12 @@
 	const tickets = getTickets();
 </script>
 
-<div class=logo>
+<div class="logo">
 	<img src="/arty-logo.svg" alt="Artyparty" />
 </div>
-<h1>Arty Party no. IV 2023 - předprodej vstupenek</h1>
-<!-- <p><a href="/purchase">Koupit vstupenku!</a></p> -->
-<p>Předprodej byl ukončen, nové lístky seženete už jen na místě.</p>
+<h1>Arty Party 2024 - předprodej vstupenek</h1>
+<p><a href="/purchase">Koupit vstupenku!</a></p>
+<!-- <p>Předprodej byl ukončen, nové lístky seženete už jen na místě.</p> -->
 {#if tickets.length === 0}
 	<p>Na tomto zařízení nemáte uložené žádné vstupenky.</p>
 {:else}
@@ -29,7 +29,7 @@
 	.logo {
 		display: flex;
 		justify-content: center;
-		
+
 		margin-top: -20px;
 		margin-bottom: 20px;
 

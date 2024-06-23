@@ -1,5 +1,6 @@
 import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { v4 as uuidv4, validate as isValidUuid } from 'uuid';
+import { validate as isValidUuid } from '@std/uuid/v4';
+import { assert } from '@std/assert';
 
 import { generateSymbol, mapOpt, setMinus } from '$lib/utils.ts';
 import type { Transaction } from './bank.ts';
@@ -32,6 +33,7 @@ interface PurchaseEntry extends UserInfo {
 
 	cena: number;
 	pocet_vstupenek: number;
+	hotel_room: string | undefined;
 	variabilni_symbol: number;
 	id_transakce?: number;
 	vstupenky_hash?: string[];
@@ -68,6 +70,7 @@ const getPurchaseRows = async (): Promise<PurchaseEntry[]> => {
 
 		cena: +r['cena'],
 		pocet_vstupenek: +r['pocet_vstupenek'],
+		hotel_room: emptyToUndefined(r['hotel_room']),
 		variabilni_symbol: +r['variabilni_symbol'],
 		id_transakce: toOptNum(r['id_transakce']),
 		vstupenky_hash: toStrArr(r['vstupenky_hash'])
@@ -87,10 +90,20 @@ export const generateUuid = async () => {
 
 	let uuid: string;
 	do {
-		uuid = uuidv4();
+		uuid = crypto.randomUUID();
 	} while (used.has(uuid));
 
 	return uuid;
+};
+
+export const getFreeHotelRooms = async () => {
+	const { purchaseSheet } = await getSheets();
+	const rows = await purchaseSheet.getRows();
+	const used = new Set(
+		rows.map((r) => emptyToUndefined(r['hotel_room'])).filter((r): r is string => r !== undefined)
+	);
+	const free = Object.keys(secrets.hotelRooms).filter((r) => !used.has(r));
+	return free;
 };
 
 const getUsedTickets = async (): Promise<Set<string>> => {
@@ -141,9 +154,9 @@ export const useTicket = async (hash: string): Promise<UseTicketResult> => {
 export const undoUseTicket = async (hash: string) => {
 	const { usedTicketSheet } = await getSheets();
 	const rows = await usedTicketSheet.getRows();
-	const row = rows.find(r => r['hash'] === hash);
+	const row = rows.find((r) => r['hash'] === hash);
 	row?.delete();
-}
+};
 
 export const checkTickets = async (
 	uuid: string,
@@ -168,6 +181,7 @@ const addPurchaseRow = async (entry: Readonly<PurchaseEntry>) => {
 	const { purchaseSheet } = await getSheets();
 	await purchaseSheet.addRow({
 		...entry,
+		hotel_room: entry.hotel_room ?? '',
 		vstupenky_hash: entry.vstupenky_hash?.join(', ') ?? ''
 	});
 };
@@ -224,11 +238,17 @@ const updateTransactionRows = async (transactions: Readonly<TransactionEntry>[])
 export const newPurchase = async (
 	uuid: string,
 	ticketCount: number,
+	hotelRoom: string | undefined,
 	user: UserInfo
 ): Promise<{ vs: number; price: number }> => {
 	z.number().int().positive().parse(ticketCount);
 
 	const [rows, transactionRows] = await Promise.all([getPurchaseRows(), getTransactionRows()]);
+
+	if (hotelRoom) {
+		const freeRooms = await getFreeHotelRooms();
+		assert(freeRooms.includes(hotelRoom), `Hotel room ${hotelRoom} is already sold out.`);
+	}
 
 	const usedSymbols = new Set([
 		...rows.map((r) => r.variabilni_symbol),
@@ -250,11 +270,15 @@ export const newPurchase = async (
 	}
 
 	const vs = generateSymbol([user.jmeno, user.email, user.adresa], (s) => !usedSymbols.has(s));
-	const price = secrets.ticketPrice * ticketCount;
+
+	const price =
+		secrets.ticketPrice * ticketCount + (hotelRoom ? secrets.hotelRooms[hotelRoom].price : 0);
+
 	await addPurchaseRow({
 		uuid,
 		...user,
 		pocet_vstupenek: ticketCount,
+		hotel_room: hotelRoom,
 		cena: price,
 		vytvoreno: Date.now(),
 		variabilni_symbol: vs

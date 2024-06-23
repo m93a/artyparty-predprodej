@@ -56,7 +56,7 @@ type BankTransaction = {
 };
 
 export const fetchTransactions = async (retries = 5): Promise<Transaction[]> => {
-	const from = '2023-07-01';
+	const from = '2024-06-01';
 	const to = '2999-01-01';
 	const url = `https://www.fio.cz/ib_api/rest/periods/${secrets.bankToken}/${from}/${to}/transactions.json`;
 

@@ -46,7 +46,11 @@
 	"dependencies": {
 		"@fontsource/cutive-mono": "^5.0.8",
 		"@fortawesome/free-solid-svg-icons": "^6.4.2",
+		"@std/assert": "npm:@jsr/std__assert@1.0.0-rc.2",
+		"@std/uuid": "npm:@jsr/std__uuid@1.0.0-rc.1",
 		"qr-svelte": "^0.0.3",
+		"svelte-create-context": "^1.0.2",
 		"svelte-fa": "^3.0.4"
-	}
+	},
+	"packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
 }

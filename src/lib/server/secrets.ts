@@ -18,6 +18,12 @@ const secretsSchema = z.object({
 	iban: z.string(),
 	accountNumber: z.string(),
 	ticketPrice: z.number().gt(0),
+	hotelRooms: z.record(
+		z.object({
+			price: z.number(),
+			description: z.string()
+		})
+	),
 	mail: z.object({
 		address: z.string().email(),
 		host: z.string(),

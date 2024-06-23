@@ -1,17 +1,15 @@
 <script lang="ts">
 	import '@fontsource/cutive-mono';
-	import { page } from '$app/stores';
 	import Back from '$lib/Back.svelte';
-
-	$: isRoot = $page.route.id === '/';
+	import BackContext from '$lib/BackContext.svelte';
 </script>
 
-<main>
-	{#if !isRoot}
+<BackContext>
+	<main>
 		<span class="back"><Back /></span>
-	{/if}
-	<slot />
-</main>
+		<slot />
+	</main>
+</BackContext>
 
 <style lang="scss">
 	:global(html, body) {
@@ -39,7 +37,7 @@
 		text-decoration-color: hsl(0, 0%, 50%);
 	}
 
-	:global(input) {
+	:global(input, select) {
 		background: hsl(158, 50%, 8%);
 		border: 1px solid hsl(0, 0%, 50%);
 		border-radius: 3px;
@@ -52,6 +50,11 @@
 		border-radius: 5px;
 		padding: 5px;
 		font-size: 19px;
+	}
+
+	:global(select) {
+		font: inherit;
+		color: inherit;
 	}
 
 	main {
