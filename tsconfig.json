@@ -4,7 +4,7 @@
 		"allowJs": true,
 		"checkJs": true,
 		"esModuleInterop": true,
-		"moduleResolution": "nodenext",
+		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,

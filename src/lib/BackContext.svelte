@@ -1,11 +1,4 @@
 <script lang="ts" context="module">
-	declare module 'svelte-create-context' {
-		export interface Context<T> {
-			setup: (value: T) => void;
-			get: () => T;
-		}
-		export function createContext<T>(): Context<T>;
-	}
 	import { createContext } from 'svelte-create-context';
 	import type { Unsubscriber } from 'svelte/store';
 
