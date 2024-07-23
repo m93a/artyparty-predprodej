@@ -84,11 +84,8 @@
 		</span> -->
 	</div>
 	<div>
-		<span>
-			<strong>Budete si přát místo pro stan?</strong>
-		</span>
 		<label>
-			Místo pro stan
+			<strong>Budete si přát místo pro stan?</strong>
 			<select name="hotelRoom" bind:value={$form.hotelRoom} {...$constraints.hotelRoom}>
 				<option value="">Ne</option>
 				{#each Object.entries(data.freeRooms) as [room, { price, description }]}
@@ -98,8 +95,7 @@
 		</label>
 		{#if $form.hotelRoom !== ''}
 			<span>
-				<strong>Popis místa:</strong>
-				Součástí rezervace jsou tyto služby:
+				<strong>Součástí rezervace jsou tyto služby:</strong>
 			</span>
 		{/if}
 		<hr />
@@ -136,7 +132,7 @@
 	}
 
 	select {
-		width: 5em;
+		width: 9em;
 	}
 
 	span {
