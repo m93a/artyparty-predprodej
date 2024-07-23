@@ -42,6 +42,8 @@ interface PurchaseEntry extends UserInfo {
 	variabilni_symbol: number;
 	id_transakce?: number;
 	vstupenky_hash?: string[];
+
+	poznamka: string | undefined;
 }
 interface TransactionEntry {
 	id_transakce: number;
@@ -78,7 +80,9 @@ const getPurchaseRows = async (): Promise<PurchaseEntry[]> => {
 		hotel_room: emptyToUndefined(r.get('hotel_room')),
 		variabilni_symbol: +r.get('variabilni_symbol'),
 		id_transakce: toOptNum(r.get('id_transakce')),
-		vstupenky_hash: toStrArr(r.get('vstupenky_hash'))
+		vstupenky_hash: toStrArr(r.get('vstupenky_hash')),
+
+		poznamka: emptyToUndefined(r.get('poznamka'))
 	}));
 };
 
@@ -102,15 +106,16 @@ export const generateUuid = async () => {
 };
 
 export const getFreeHotelRooms = async () => {
-	const { purchaseSheet } = await getSheets();
-	const rows = await purchaseSheet.getRows();
-	const used = new Set(
-		rows
-			.map((r) => emptyToUndefined(r.get('hotel_room')))
-			.filter((r): r is string => r !== undefined)
-	);
-	const free = Object.keys(secrets.hotelRooms).filter((r) => !used.has(r));
-	return free;
+	// const { purchaseSheet } = await getSheets();
+	// const rows = await purchaseSheet.getRows();
+	// const used = new Set(
+	// 	rows
+	// 		.map((r) => emptyToUndefined(r.get('hotel_room')))
+	// 		.filter((r): r is string => r !== undefined)
+	// );
+	// const free = Object.keys(secrets.hotelRooms).filter((r) => !used.has(r));
+	// return free;
+	return Object.keys(secrets.hotelRooms);
 };
 
 const getUsedTickets = async (): Promise<Set<string>> => {
@@ -189,7 +194,8 @@ const addPurchaseRow = async (entry: Readonly<PurchaseEntry>) => {
 	await purchaseSheet.addRow({
 		...entry,
 		hotel_room: entry.hotel_room ?? '',
-		vstupenky_hash: entry.vstupenky_hash?.join(', ') ?? ''
+		vstupenky_hash: entry.vstupenky_hash?.join(', ') ?? '',
+		poznamka: entry.poznamka ?? ''
 	});
 };
 
@@ -246,7 +252,8 @@ export const newPurchase = async (
 	uuid: string,
 	ticketCount: number,
 	hotelRoom: string | undefined,
-	user: UserInfo
+	user: UserInfo,
+	note: string | undefined
 ): Promise<{ vs: number; price: number }> => {
 	z.number().int().positive().parse(ticketCount);
 
@@ -288,7 +295,8 @@ export const newPurchase = async (
 		hotel_room: hotelRoom,
 		cena: price,
 		vytvoreno: Date.now(),
-		variabilni_symbol: vs
+		variabilni_symbol: vs,
+		poznamka: note
 	});
 
 	return { vs, price };

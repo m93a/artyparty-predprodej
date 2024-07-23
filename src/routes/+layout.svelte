@@ -30,14 +30,14 @@
 		background: center / cover no-repeat url('/arty-bg.jpeg');
 	}
 
-	:global(body, input, button, a) {
+	:global(body, input, button, a, textarea) {
 		font-family: 'Cutive Mono', monospace;
 		font-weight: 400;
 		color: hsl(0, 0%, 90%);
 		text-decoration-color: hsl(0, 0%, 50%);
 	}
 
-	:global(input, select) {
+	:global(input, select, textarea) {
 		background: hsl(158, 50%, 8%);
 		border: 1px solid hsl(0, 0%, 50%);
 		border-radius: 3px;

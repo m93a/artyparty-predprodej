@@ -26,7 +26,8 @@ const formSchema = z
 			.enum<string, any>(Object.keys(secrets.hotelRooms), {
 				invalid_type_error: 'Neznámá parcela pro stan.'
 			})
-			.optional()
+			.optional(),
+		note: z.string().optional()
 	})
 	.refine(
 		({ ticketCount, hotelRoom }) => ticketCount > 0 || hotelRoom !== undefined,
@@ -61,11 +62,17 @@ export const actions = {
 
 		const uuid = form.data.uuid;
 		const ticketCount = form.data.ticketCount;
-		const { vs } = await newPurchase(uuid, ticketCount, form.data.hotelRoom, {
-			jmeno: form.data.name,
-			adresa: `${form.data.street}\n${form.data.zip} ${form.data.city}`,
-			email: form.data.email
-		}).catch(() => {
+		const { vs } = await newPurchase(
+			uuid,
+			ticketCount,
+			form.data.hotelRoom,
+			{
+				jmeno: form.data.name,
+				adresa: `${form.data.street}\n${form.data.zip} ${form.data.city}`,
+				email: form.data.email
+			},
+			form.data.note
+		).catch(() => {
 			throw redirect(303, `/?error=uuid-mismatch`);
 		});
 

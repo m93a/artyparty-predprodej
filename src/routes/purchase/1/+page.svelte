@@ -2,27 +2,8 @@
 	import { superForm } from 'sveltekit-superforms';
 	import type { PageData } from './$types.js';
 	import { updateTicket } from '$lib/client/tickets.ts';
-	// import { getBackContext } from '$lib/BackContext.svelte';
-	// import { onDestroy } from 'svelte';
 
 	export let data: PageData;
-
-	// const onNextPage = (e: Event) => {
-	// 	page = 'hotel';
-	// 	e.preventDefault();
-	// };
-	// const onBack = () => {
-	// 	if (page === 'hotel') {
-	// 		page = 'ticket';
-	// 	} else {
-	// 		location.href = '/';
-	// 	}
-	// };
-
-	// const { listen } = getBackContext();
-	// onDestroy(listen(onBack));
-
-	// let page: 'ticket' | 'hotel' = 'ticket';
 
 	const { form, constraints, errors, enhance } = superForm(data.form);
 
@@ -78,10 +59,6 @@
 			<small>{$errors.ticketCount ?? ''}</small>
 		</label>
 		<hr />
-		<!-- <span>
-			{$form.ticketCount * data.ticketPrice},– Kč
-			<button on:click={onNextPage}>Dále!</button>
-		</span> -->
 	</div>
 	<div>
 		<label>
@@ -95,9 +72,23 @@
 		</label>
 		{#if $form.hotelRoom !== ''}
 			<span>
-				<strong>Součástí rezervace jsou tyto služby:</strong>
+				<strong>Součástí rezervace Vašeho stanového místa jsou tyto služby:</strong>
+				<ol>
+					<li>Stanový palouček je pod dohledem našeho personálu.</li>
+					<li>
+						Můžete si uschovat vaše cennosti (například elektroniku, doklady, šperky apod.) do
+						našeho festivalového trezoru.
+					</li>
+					<li>Elektrická zásuvka 230V na našem stanovém infopointu.</li>
+					<li>Snídaně a výběrová káva na stanovém infopointu. (vegan optional)</li>
+				</ol>
 			</span>
 		{/if}
+		<hr />
+		<span>
+			<strong>Poznámka / dotaz na pořadatele</strong>
+			<textarea name="note" bind:value={$form.note} {...$constraints.note}></textarea>
+		</span>
 		<hr />
 		<span>
 			{$form.ticketCount * data.ticketPrice + (data.freeRooms[$form.hotelRoom]?.price ?? 0)},– Kč
@@ -137,5 +128,11 @@
 
 	span {
 		padding-top: 0.5em;
+	}
+
+	ol,
+	li,
+	textarea {
+		margin: 0.5em 0;
 	}
 </style>
