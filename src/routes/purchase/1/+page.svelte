@@ -91,16 +91,16 @@
 			<label>
 				Místo pro stan
 				<select name="hotelRoom" bind:value={$form.hotelRoom} {...$constraints.hotelRoom}>
-					<option value="">Žádné</option>
+					<option value="">Ne</option>
 					{#each Object.entries(data.freeRooms) as [room, { price, description }]}
-						<option value={room}>{room} ({price} Kč) – {description}</option>
+						<option value={room}>{room} ({price} Kč)</option>
 					{/each}
 				</select>
 			</label>
 			{#if $form.hotelRoom !== ''}
 				<span>
 					<strong>Popis místa:</strong>
-					{data.freeRooms[$form.hotelRoom]?.description}
+					Součástí rezervace jsou tyto služby:
 				</span>
 			{/if}
 			<hr />
