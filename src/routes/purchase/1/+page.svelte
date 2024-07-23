@@ -38,7 +38,7 @@
 	};
 </script>
 
-<h1>Arty Party no. IV 2023 - předprodej vstupenek</h1>
+<h1>Arty Party no. V 2024 - předprodej vstupenek</h1>
 <form method="post" use:enhance on:submit={onSubmit}>
 	<div>
 		<input type="hidden" name="uuid" value={data.uuid} />
@@ -133,6 +133,10 @@
 		input {
 			display: block;
 		}
+	}
+
+	select {
+		width: 5em;
 	}
 
 	span {

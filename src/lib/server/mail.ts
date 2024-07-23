@@ -12,7 +12,7 @@ export async function sendTicket(name: string, address: string, uuid: string, ha
 	const instructions = `Vstupenka je přenositelná, z důvodu vaší ochrany je však potřeba vědět, na který email je zaregistrována.
 U vstupu na akci se prokážete přiloženým QR kódem, který lze použít pouze jednou.
 
-ArtyParty se koná 26. 8. 2023 od 12:00 na letišti v Hradci Králové. 
+ArtyParty se koná 24. 8. 2024 od 12:00 na letišti v Hradci Králové.
 GPS: 50.2384544N, 15.8404975E
 Prosíme, nedopravujte se na místo autem. 3 minuty chůze od areálu je autobusová zastávka Letiště, kam jezdí mhd č.15.
 Případně můžete využít bike-sharingové služby Nextbike. Nejbližší stanice pro zaparkování kola je SŠSOG na Pouchově s evidenčním číslem 47644.
@@ -30,7 +30,7 @@ Při vzniku jakýchkoliv nepříjemných situací a sporů informujte organizát
 
 V případě jakýchkoliv nejasností, technických problémů, nebo reklamace, použijte kontaktní email crew.artyparty@gmail.com
 
-Těšíme se na vás 28. srpna.
+Těšíme se na vás 24. srpna.
 Vaše ArtyParty Crew.`;
 
 	const text =
