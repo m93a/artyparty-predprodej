@@ -84,25 +84,27 @@
 		</span> -->
 	</div>
 	<div>
-		<span>
-			<strong>Budete si přát místo pro stan?</strong>
-		</span>
-		<label>
-			Místo pro stan
-			<select name="hotelRoom" bind:value={$form.hotelRoom} {...$constraints.hotelRoom}>
-				<option value="">Žádné</option>
-				{#each Object.entries(data.freeRooms) as [room, { price, description }]}
-					<option value={room}>{room} ({price} Kč) – {description}</option>
-				{/each}
-			</select>
-		</label>
-		{#if $form.hotelRoom !== ''}
+		<div style:display="none">
 			<span>
-				<strong>Popis místa:</strong>
-				{data.freeRooms[$form.hotelRoom]?.description}
+				<strong>Budete si přát místo pro stan?</strong>
 			</span>
-		{/if}
-		<hr />
+			<label>
+				Místo pro stan
+				<select name="hotelRoom" bind:value={$form.hotelRoom} {...$constraints.hotelRoom}>
+					<option value="">Žádné</option>
+					{#each Object.entries(data.freeRooms) as [room, { price, description }]}
+						<option value={room}>{room} ({price} Kč) – {description}</option>
+					{/each}
+				</select>
+			</label>
+			{#if $form.hotelRoom !== ''}
+				<span>
+					<strong>Popis místa:</strong>
+					{data.freeRooms[$form.hotelRoom]?.description}
+				</span>
+			{/if}
+			<hr />
+		</div>
 		<span>
 			{$form.ticketCount * data.ticketPrice + (data.freeRooms[$form.hotelRoom]?.price ?? 0)},– Kč
 			<button>Koupit!</button>
