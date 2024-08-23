@@ -52,6 +52,7 @@ export const load = (async (event) => {
 
 export const actions = {
 	default: async ({ request }) => {
+		throw 'Předprodej ukončen';
 		const form = await superValidate(request, zod(formSchema));
 
 		if (!form.valid) {
